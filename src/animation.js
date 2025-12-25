@@ -3,7 +3,7 @@
 
   if (!window.FlowUI) return;
 
-  FlowUI.animation = function () {
+  FlowUI.use(function () {
 
     /* =========================
        ENVIRONMENT CHECKS
