@@ -1,100 +1,91 @@
 (function () {
-  if (typeof anime === "undefined") {
-    console.error("FlowUI: anime.js not found");
-    return;
-  }
-
   const FlowUI = {
-    init(options = {}) {
-      const settings = {
-        reveal: options.reveal !== false,
-        buttons: options.buttons !== false,
-        smoothScroll: options.smoothScroll !== false,
-        theme: options.theme !== false
-      };
-
-      if (settings.theme) this.injectTheme();
-      if (settings.reveal) this.reveal();
-      if (settings.buttons) this.buttons();
-      if (settings.smoothScroll) this.smoothScroll();
+    init() {
+      this.injectStyles();
+      this.enhanceButtons();
+      this.revealText();
+      console.log("FlowUI loaded");
     },
 
-    injectTheme() {
+    injectStyles() {
+      if (document.getElementById("flowui-styles")) return;
+
       const style = document.createElement("style");
+      style.id = "flowui-styles";
       style.innerHTML = `
         body {
           font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-          background: #f8fafc;
-          color: #0f172a;
+          line-height: 1.6;
         }
 
         h1, h2, h3 {
-          font-weight: 800;
-          letter-spacing: -0.03em;
-        }
-
-        p {
-          color: #475569;
-          font-size: 16px;
+          letter-spacing: -0.02em;
         }
 
         button {
-          background: linear-gradient(135deg, #4f46e5, #7c3aed);
-          color: #fff;
+          padding: 12px 20px;
+          border-radius: 12px;
           border: none;
-          border-radius: 14px;
-          padding: 14px 28px;
-          font-size: 15px;
-          font-weight: 600;
-          box-shadow: 0 14px 35px rgba(79,70,229,.35);
+          background: linear-gradient(135deg, #6a5cff, #9b8cff);
+          color: white;
+          font-size: 16px;
+          cursor: pointer;
+          box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+          transition: transform .2s ease, box-shadow .2s ease;
         }
 
-        section {
-          background: #ffffff;
-          border-radius: 20px;
-          padding: 32px;
-          box-shadow: 0 30px 60px rgba(0,0,0,.08);
+        button:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 16px 40px rgba(0,0,0,0.25);
+        }
+
+        .flowui-reveal {
+          opacity: 0;
+          transform: translateY(20px);
+          transition: all .6s ease;
+        }
+
+        .flowui-reveal.visible {
+          opacity: 1;
+          transform: translateY(0);
         }
       `;
       document.head.appendChild(style);
     },
 
-    reveal() {
-      document.querySelectorAll("h1, h2, h3, p, section").forEach(el => {
-        el.style.opacity = 0;
-        el.style.transform = "translateY(40px)";
-
-        anime({
-          targets: el,
-          opacity: [0, 1],
-          translateY: [40, 0],
-          duration: 900,
-          easing: "easeOutExpo",
-          delay: 200
-        });
-      });
-    },
-
-    buttons() {
+    enhanceButtons() {
       document.querySelectorAll("button").forEach(btn => {
-        btn.addEventListener("mouseenter", () => {
-          anime({ targets: btn, scale: 1.08, duration: 200 });
-        });
-
-        btn.addEventListener("mouseleave", () => {
-          anime({ targets: btn, scale: 1, duration: 200 });
-        });
-
         btn.addEventListener("mousedown", () => {
-          anime({ targets: btn, scale: 0.94, duration: 100 });
+          btn.style.transform = "scale(0.96)";
+        });
+        btn.addEventListener("mouseup", () => {
+          btn.style.transform = "";
         });
       });
     },
 
-    smoothScroll() {
-      document.documentElement.style.scrollBehavior = "smooth";
+    revealText() {
+      const items = document.querySelectorAll("p, h1, h2, h3, section");
+      items.forEach(el => el.classList.add("flowui-reveal"));
+
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.2 });
+
+      items.forEach(el => observer.observe(el));
     }
   };
 
   window.FlowUI = FlowUI;
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => FlowUI.init());
+  } else {
+    FlowUI.init();
+  }
 })();
