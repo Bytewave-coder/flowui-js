@@ -4,44 +4,63 @@
   // Prevent double load
   if (window.FlowUI) return;
 
-  const FlowUI = {};
+  const FlowUI = {
+    _modules: [],
+    _stylesInjected: false
+  };
 
   /* =========================
-     CORE HELPERS
+     CSS INJECTOR (GLOBAL)
   ========================= */
 
   FlowUI._injectCSS = function (css) {
-    if (!css || document.getElementById("flowui-style")) return;
+    if (!css) return;
 
     const style = document.createElement("style");
-    style.id = "flowui-style";
+    style.setAttribute("data-flowui", "true");
     style.textContent = css;
     document.head.appendChild(style);
   };
 
-  FlowUI._ready = function (fn) {
-    if (document.readyState !== "loading") {
-      fn();
-    } else {
-      document.addEventListener("DOMContentLoaded", fn);
+  /* =========================
+     MODULE REGISTRATION
+  ========================= */
+
+  FlowUI.use = function (fn) {
+    if (typeof fn === "function") {
+      FlowUI._modules.push(fn);
     }
   };
 
   /* =========================
-     INIT
+     INIT ENGINE
   ========================= */
 
   FlowUI.init = function () {
-    FlowUI._ready(() => {
-      // Modules will attach themselves here
-      if (FlowUI.sections) FlowUI.sections();
-      if (FlowUI.buttons) FlowUI.buttons();
-      if (FlowUI.text) FlowUI.text();
-      if (FlowUI.animation) FlowUI.animation();
+    // Wait for DOM safely
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", FlowUI.init, {
+        once: true
+      });
+      return;
+    }
+
+    // Run all modules
+    FlowUI._modules.forEach(fn => {
+      try {
+        fn();
+      } catch (err) {
+        console.error("[FlowUI] Module failed:", err);
+      }
     });
+
+    console.log("[FlowUI] Initialized");
   };
 
-  // Expose globally
+  /* =========================
+     EXPOSE GLOBAL
+  ========================= */
+
   window.FlowUI = FlowUI;
 
 })(window, document);
