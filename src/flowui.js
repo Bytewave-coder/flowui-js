@@ -1,73 +1,109 @@
 (function () {
   const FlowUI = {
     config: {
-      accent: "#6a5cff"
+      accent: null,
+      maxWidth: "1100px"
     },
 
     init(options = {}) {
       this.config = { ...this.config, ...options };
-      this.detectTheme();
+      this.detectEnvironment();
+      this.generateTheme();
       this.injectStyles();
-      this.brainScan();
-      this.enableSmoothScroll();
-      console.log("FlowUI Smart Brain active");
+      this.applyTypography();
+      this.applyLayout();
+      this.applyMotion();
+      console.log("FlowUI Intelligent Core active");
     },
 
-    detectTheme() {
+    detectEnvironment() {
       this.isDark = matchMedia("(prefers-color-scheme: dark)").matches;
+      this.reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      this.isMobile = window.innerWidth < 768;
+    },
+
+    generateTheme() {
+      if (!this.config.accent) {
+        this.config.accent = this.isDark ? "#8b7cff" : "#6a5cff";
+      }
+
+      this.gradient = `linear-gradient(135deg, ${this.config.accent}, #9b8cff)`;
+      this.bg = this.isDark ? "#0d0f14" : "#ffffff";
+      this.text = this.isDark ? "#eaeaf0" : "#1a1a1a";
+      this.card = this.isDark
+        ? "rgba(255,255,255,0.06)"
+        : "rgba(255,255,255,0.75)";
     },
 
     injectStyles() {
       if (document.getElementById("flowui-styles")) return;
 
-      const bg = this.isDark ? "#0d0f14" : "#ffffff";
-      const text = this.isDark ? "#eaeaf0" : "#1a1a1a";
-
       const style = document.createElement("style");
       style.id = "flowui-styles";
       style.innerHTML = `
         body {
-          background: ${bg};
-          color: ${text};
+          background: ${this.bg};
+          color: ${this.text};
           font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+          margin: 0;
           line-height: 1.7;
-          transition: background .4s ease, color .4s ease;
+          transition: background .3s ease, color .3s ease;
         }
 
-        h1, h2, h3 {
+        main, body > * {
+          max-width: ${this.config.maxWidth};
+          margin-left: auto;
+          margin-right: auto;
+        }
+
+        h1 {
+          font-size: clamp(2.2rem, 4vw, 3rem);
+          letter-spacing: -0.05em;
+          margin-bottom: .4em;
+        }
+
+        h2 {
+          font-size: clamp(1.6rem, 3vw, 2.2rem);
           letter-spacing: -0.04em;
+          margin-bottom: .4em;
+        }
+
+        p {
+          font-size: 1rem;
+          opacity: .9;
+          margin-bottom: 1em;
+        }
+
+        section, article {
+          background: ${this.card};
+          backdrop-filter: blur(16px);
+          border-radius: 22px;
+          padding: clamp(20px, 4vw, 32px);
+          margin: 48px auto;
+          box-shadow: 0 25px 60px rgba(0,0,0,.2);
         }
 
         button {
           padding: 14px 26px;
           border-radius: 16px;
           border: none;
-          background: linear-gradient(135deg, ${this.config.accent}, #9b8cff);
+          background: ${this.gradient};
           color: white;
           font-size: 16px;
           cursor: pointer;
           box-shadow: 0 12px 30px rgba(0,0,0,.25);
-          transition: all .25s ease;
+          transition: transform .25s ease, box-shadow .25s ease;
         }
 
         button:hover {
-          transform: translateY(-3px) scale(1.03);
+          transform: translateY(-2px);
           box-shadow: 0 20px 50px rgba(0,0,0,.4);
-        }
-
-        section, article, [data-card] {
-          background: rgba(255,255,255,0.08);
-          backdrop-filter: blur(18px);
-          border-radius: 22px;
-          padding: 28px;
-          margin: 40px 0;
-          box-shadow: 0 25px 60px rgba(0,0,0,.2);
         }
 
         .flow-reveal {
           opacity: 0;
-          transform: translateY(40px);
-          transition: all .8s cubic-bezier(.2,.8,.2,1);
+          transform: translateY(24px);
+          transition: all .7s cubic-bezier(.2,.8,.2,1);
         }
 
         .flow-reveal.show {
@@ -78,39 +114,23 @@
       document.head.appendChild(style);
     },
 
-    brainScan() {
-      this.animateText();
-      this.animateSections();
-      this.animateButtons();
-    },
-
-    animateText() {
-      document.querySelectorAll("h1, h2, h3, p").forEach((el, i) => {
+    applyTypography() {
+      document.querySelectorAll("h1, h2, p").forEach(el => {
         el.classList.add("flow-reveal");
-        el.style.transitionDelay = `${i * 40}ms`;
         this.observe(el);
       });
     },
 
-    animateSections() {
+    applyLayout() {
       document.querySelectorAll("section, article").forEach(el => {
         el.classList.add("flow-reveal");
         this.observe(el);
       });
     },
 
-    animateButtons() {
-      document.querySelectorAll("button").forEach(btn => {
-        btn.addEventListener("mousemove", e => {
-          const r = btn.getBoundingClientRect();
-          const x = e.clientX - r.left - r.width / 2;
-          const y = e.clientY - r.top - r.height / 2;
-          btn.style.transform = `translate(${x * 0.05}px, ${y * 0.05}px)`;
-        });
-        btn.addEventListener("mouseleave", () => {
-          btn.style.transform = "";
-        });
-      });
+    applyMotion() {
+      if (this.reduceMotion) return;
+      document.documentElement.style.scrollBehavior = "smooth";
     },
 
     observe(el) {
@@ -121,12 +141,8 @@
             io.unobserve(e.target);
           }
         });
-      }, { threshold: 0.2 });
+      }, { threshold: this.isMobile ? 0.1 : 0.2 });
       io.observe(el);
-    },
-
-    enableSmoothScroll() {
-      document.documentElement.style.scrollBehavior = "smooth";
     }
   };
 
