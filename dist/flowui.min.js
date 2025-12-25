@@ -1,6 +1,6 @@
 (function () {
   if (typeof anime === "undefined") {
-    console.error("FlowUI error: anime.js is not loaded");
+    console.error("FlowUI: anime.js not found");
     return;
   }
 
@@ -14,61 +14,54 @@
       };
 
       if (settings.theme) this.injectTheme();
-      if (settings.reveal) this.revealText();
-      if (settings.buttons) this.animateButtons();
-      if (settings.smoothScroll) this.enableSmoothScroll();
+      if (settings.reveal) this.reveal();
+      if (settings.buttons) this.buttons();
+      if (settings.smoothScroll) this.smoothScroll();
     },
 
     injectTheme() {
       const style = document.createElement("style");
       style.innerHTML = `
         body {
-          font-family: Inter, system-ui, -apple-system, sans-serif;
-          color: #111827;
-          background: #f9fafb;
+          font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+          background: #f8fafc;
+          color: #0f172a;
         }
 
         h1, h2, h3 {
-          font-weight: 700;
-          letter-spacing: -0.02em;
+          font-weight: 800;
+          letter-spacing: -0.03em;
         }
 
         p {
-          color: #4b5563;
+          color: #475569;
+          font-size: 16px;
         }
 
         button {
-          background: linear-gradient(135deg, #6366f1, #8b5cf6);
-          color: white;
+          background: linear-gradient(135deg, #4f46e5, #7c3aed);
+          color: #fff;
           border: none;
-          border-radius: 10px;
-          padding: 12px 22px;
+          border-radius: 14px;
+          padding: 14px 28px;
           font-size: 15px;
           font-weight: 600;
-          box-shadow: 0 10px 25px rgba(99,102,241,0.25);
-          transition: box-shadow 0.3s ease;
+          box-shadow: 0 14px 35px rgba(79,70,229,.35);
         }
 
-        button:hover {
-          box-shadow: 0 15px 35px rgba(99,102,241,0.35);
-        }
-
-        section, .flow-card {
-          background: rgba(255,255,255,0.75);
-          backdrop-filter: blur(12px);
-          border-radius: 16px;
-          padding: 30px;
-          box-shadow: 0 20px 40px rgba(0,0,0,0.06);
+        section {
+          background: #ffffff;
+          border-radius: 20px;
+          padding: 32px;
+          box-shadow: 0 30px 60px rgba(0,0,0,.08);
         }
       `;
       document.head.appendChild(style);
     },
 
-    revealText() {
-      const elements = document.querySelectorAll("h1, h2, h3, p, section");
-
-      elements.forEach(el => {
-        el.style.opacity = "0";
+    reveal() {
+      document.querySelectorAll("h1, h2, h3, p, section").forEach(el => {
+        el.style.opacity = 0;
         el.style.transform = "translateY(40px)";
 
         anime({
@@ -77,43 +70,28 @@
           translateY: [40, 0],
           duration: 900,
           easing: "easeOutExpo",
-          delay: 150
+          delay: 200
         });
       });
     },
 
-    animateButtons() {
-      document.querySelectorAll("button, a").forEach(el => {
-        el.addEventListener("mouseenter", () => {
-          anime({
-            targets: el,
-            scale: 1.08,
-            duration: 200,
-            easing: "easeOutQuad"
-          });
+    buttons() {
+      document.querySelectorAll("button").forEach(btn => {
+        btn.addEventListener("mouseenter", () => {
+          anime({ targets: btn, scale: 1.08, duration: 200 });
         });
 
-        el.addEventListener("mouseleave", () => {
-          anime({
-            targets: el,
-            scale: 1,
-            duration: 200,
-            easing: "easeOutQuad"
-          });
+        btn.addEventListener("mouseleave", () => {
+          anime({ targets: btn, scale: 1, duration: 200 });
         });
 
-        el.addEventListener("mousedown", () => {
-          anime({
-            targets: el,
-            scale: 0.94,
-            duration: 100,
-            easing: "easeOutQuad"
-          });
+        btn.addEventListener("mousedown", () => {
+          anime({ targets: btn, scale: 0.94, duration: 100 });
         });
       });
     },
 
-    enableSmoothScroll() {
+    smoothScroll() {
       document.documentElement.style.scrollBehavior = "smooth";
     }
   };
