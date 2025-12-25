@@ -1,65 +1,34 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>FlowUI Debug Tester</title>
 </head>
-
 <body>
-  <h1>FlowUI Debug Tester</h1>
-  <p id="status">Checking FlowUI status...</p>
 
-  <!-- Load FlowUI -->
-  <script src="build/flowui.min.js"></script>
+<h1>FlowUI Debug Tester</h1>
+<p id="status">Checking FlowUI status...</p>
 
-  <!-- Debug Logic -->
-  <script>
-    (function () {
-      const status = document.getElementById("status");
+<!-- ✅ Correct GitHub Pages path -->
+<script src="/flowui-js/build/flowui.min.js"></script>
 
-      function fail(reason) {
-        status.innerHTML = "❌ FlowUI FAILED<br><br>Reason: " + reason;
-        status.style.color = "red";
-        alert("❌ FlowUI FAILED\n\n" + reason);
-      }
+<script>
+  const status = document.getElementById("status");
 
-      function success() {
-        status.innerHTML = "✅ FlowUI LOADED SUCCESSFULLY";
-        status.style.color = "green";
-        alert("✅ FlowUI LOADED SUCCESSFULLY");
-      }
+  setTimeout(() => {
+    if (typeof FlowUI === "undefined") {
+      status.innerHTML = "❌ FlowUI FAILED: FlowUI is undefined";
+      status.style.color = "red";
+      alert("❌ FlowUI FAILED\nFlowUI is undefined");
+    } else {
+      status.innerHTML = "✅ FlowUI LOADED SUCCESSFULLY";
+      status.style.color = "green";
+      alert("✅ FlowUI LOADED SUCCESSFULLY");
+      FlowUI.init();
+    }
+  }, 300);
+</script>
 
-      // Delay to ensure script load attempt finished
-      setTimeout(() => {
-        if (typeof FlowUI === "undefined") {
-          fail(
-            "FlowUI is undefined.\n" +
-            "The library was NOT loaded.\n\n" +
-            "Possible causes:\n" +
-            "- Wrong script path\n" +
-            "- build/flowui.min.js does not exist\n" +
-            "- External JS blocked (content://, file viewer)\n" +
-            "- GitHub Pages not rebuilt yet"
-          );
-        } else if (typeof FlowUI.init !== "function") {
-          fail(
-            "FlowUI exists but init() is missing.\n" +
-            "Your build file is broken or incomplete."
-          );
-        } else {
-          try {
-            FlowUI.init();
-            success();
-          } catch (err) {
-            fail(
-              "FlowUI loaded but crashed during init().\n\n" +
-              err.message
-            );
-          }
-        }
-      }, 300);
-    })();
-  </script>
 </body>
 </html>
