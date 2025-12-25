@@ -1,156 +1,167 @@
 (function () {
-  const FlowUI = {
-    config: {
-      accent: null,
-      maxWidth: "1100px"
-    },
+  function injectCSS(css) {
+    const style = document.createElement("style");
+    style.innerHTML = css;
+    document.head.appendChild(style);
+  }
 
-    init(options = {}) {
-      this.config = { ...this.config, ...options };
-      this.detectEnvironment();
-      this.generateTheme();
-      this.injectStyles();
-      this.applyTypography();
-      this.applyLayout();
-      this.applyMotion();
-      console.log("FlowUI Intelligent Core active");
-    },
+  injectCSS(`
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: radial-gradient(circle at top, #111 0%, #000 60%);
+      color: #eaeaea;
+      line-height: 1.65;
+    }
 
-    detectEnvironment() {
-      this.isDark = matchMedia("(prefers-color-scheme: dark)").matches;
-      this.reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
-      this.isMobile = window.innerWidth < 768;
-    },
+    section {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 56px 20px;
+    }
 
-    generateTheme() {
-      if (!this.config.accent) {
-        this.config.accent = this.isDark ? "#8b7cff" : "#6a5cff";
-      }
+    /* TEXT */
+    .flow-title {
+      font-size: clamp(2.2rem, 6vw, 3.6rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 16px;
+    }
 
-      this.gradient = `linear-gradient(135deg, ${this.config.accent}, #9b8cff)`;
-      this.bg = this.isDark ? "#0d0f14" : "#ffffff";
-      this.text = this.isDark ? "#eaeaf0" : "#1a1a1a";
-      this.card = this.isDark
-        ? "rgba(255,255,255,0.06)"
-        : "rgba(255,255,255,0.75)";
-    },
+    .flow-subtitle {
+      font-size: clamp(1.4rem, 4vw, 2rem);
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
 
-    injectStyles() {
-      if (document.getElementById("flowui-styles")) return;
+    .flow-text {
+      font-size: 1rem;
+      max-width: 720px;
+      opacity: 0.95;
+    }
 
-      const style = document.createElement("style");
-      style.id = "flowui-styles";
-      style.innerHTML = `
-        body {
-          background: ${this.bg};
-          color: ${this.text};
-          font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-          margin: 0;
-          line-height: 1.7;
-          transition: background .3s ease, color .3s ease;
-        }
+    .flow-muted {
+      opacity: 0.6;
+      font-size: 0.95rem;
+    }
 
-        main, body > * {
-          max-width: ${this.config.maxWidth};
-          margin-left: auto;
-          margin-right: auto;
-        }
+    /* SECTIONS */
+    .flow-hero {
+      min-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 20px;
+      background: linear-gradient(135deg, #7f7cff, #b983ff);
+      color: white;
+      border-radius: 32px;
+    }
 
-        h1 {
-          font-size: clamp(2.2rem, 4vw, 3rem);
-          letter-spacing: -0.05em;
-          margin-bottom: .4em;
-        }
+    .flow-section {
+      background: transparent;
+    }
 
-        h2 {
-          font-size: clamp(1.6rem, 3vw, 2.2rem);
-          letter-spacing: -0.04em;
-          margin-bottom: .4em;
-        }
+    .flow-card {
+      background: #141414;
+      border-radius: 22px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+      transition: transform .4s ease, box-shadow .4s ease;
+    }
 
-        p {
-          font-size: 1rem;
-          opacity: .9;
-          margin-bottom: 1em;
-        }
+    .flow-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+    }
 
-        section, article {
-          background: ${this.card};
-          backdrop-filter: blur(16px);
-          border-radius: 22px;
-          padding: clamp(20px, 4vw, 32px);
-          margin: 48px auto;
-          box-shadow: 0 25px 60px rgba(0,0,0,.2);
-        }
+    .flow-glass {
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(18px);
+      border-radius: 24px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    }
 
-        button {
-          padding: 14px 26px;
-          border-radius: 16px;
-          border: none;
-          background: ${this.gradient};
-          color: white;
-          font-size: 16px;
-          cursor: pointer;
-          box-shadow: 0 12px 30px rgba(0,0,0,.25);
-          transition: transform .25s ease, box-shadow .25s ease;
-        }
+    /* BUTTONS */
+    button {
+      font-family: inherit;
+      cursor: pointer;
+    }
 
-        button:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 20px 50px rgba(0,0,0,.4);
-        }
+    .flow-primary,
+    .flow-secondary,
+    .flow-neon,
+    .flow-ghost {
+      padding: 14px 28px;
+      border-radius: 999px;
+      border: none;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: transform .25s ease, box-shadow .25s ease;
+    }
 
-        .flow-reveal {
-          opacity: 0;
-          transform: translateY(24px);
-          transition: all .7s cubic-bezier(.2,.8,.2,1);
-        }
+    .flow-primary {
+      background: linear-gradient(135deg, #7f7cff, #b983ff);
+      color: #fff;
+      box-shadow: 0 10px 30px rgba(127,124,255,.5);
+    }
 
-        .flow-reveal.show {
-          opacity: 1;
-          transform: none;
-        }
-      `;
-      document.head.appendChild(style);
-    },
+    .flow-secondary {
+      background: linear-gradient(135deg, #00c6ff, #0072ff);
+      color: #fff;
+    }
 
-    applyTypography() {
-      document.querySelectorAll("h1, h2, p").forEach(el => {
-        el.classList.add("flow-reveal");
-        this.observe(el);
-      });
-    },
+    .flow-neon {
+      background: #000;
+      color: #0ff;
+      box-shadow: 0 0 18px #0ff;
+    }
 
-    applyLayout() {
-      document.querySelectorAll("section, article").forEach(el => {
-        el.classList.add("flow-reveal");
-        this.observe(el);
-      });
-    },
+    .flow-ghost {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,.2);
+      color: #fff;
+    }
 
-    applyMotion() {
-      if (this.reduceMotion) return;
-      document.documentElement.style.scrollBehavior = "smooth";
-    },
+    button:hover {
+      transform: scale(1.06);
+    }
 
-    observe(el) {
-      const io = new IntersectionObserver(entries => {
+    /* ANIMATIONS */
+    .flow-fade { opacity: 0; transform: translateY(24px); }
+    .flow-slide { opacity: 0; transform: translateX(-30px); }
+    .flow-scale { opacity: 0; transform: scale(.9); }
+    .flow-float { animation: float 4s ease-in-out infinite; }
+
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+  `);
+
+  function reveal() {
+    const items = document.querySelectorAll(
+      ".flow-fade,.flow-slide,.flow-scale"
+    );
+
+    const observer = new IntersectionObserver(
+      entries => {
         entries.forEach(e => {
           if (e.isIntersecting) {
-            e.target.classList.add("show");
-            io.unobserve(e.target);
+            e.target.style.opacity = 1;
+            e.target.style.transform = "none";
+            e.target.style.transition = "all .9s cubic-bezier(.2,.7,.2,1)";
+            observer.unobserve(e.target);
           }
         });
-      }, { threshold: this.isMobile ? 0.1 : 0.2 });
-      io.observe(el);
+      },
+      { threshold: 0.15 }
+    );
+
+    items.forEach(i => observer.observe(i));
+  }
+
+  window.FlowUI = {
+    init() {
+      reveal();
     }
   };
-
-  window.FlowUI = FlowUI;
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", () => FlowUI.init());
-  } else {
-    FlowUI.init();
-  }
 })();
