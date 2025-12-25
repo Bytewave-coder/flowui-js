@@ -1,67 +1,84 @@
-/* FlowUI - Source Version */
-
-const FlowUI = {
-  init(config = {}) {
-    this.config = {
-      reveal: config.reveal !== false,
-      buttons: config.buttons !== false,
-      smoothScroll: config.smoothScroll !== false
-    };
-
-    this.injectCSS();
-    if (this.config.reveal) this.reveal();
-    if (this.config.buttons) this.buttons();
-    if (this.config.smoothScroll) this.smoothScroll();
-  },
-
-  injectCSS() {
-    const style = document.createElement("style");
-    style.innerHTML = `
-      .flowui-hidden {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      .flowui-btn {
-        transition: transform .2s ease;
-      }
-    `;
-    document.head.appendChild(style);
-  },
-
-  reveal() {
-    const els = document.querySelectorAll(
-      "section, article, div, img, h1, h2, h3, p"
-    );
-
-    els.forEach(el => el.classList.add("flowui-hidden"));
-
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          e.target.style.opacity = 1;
-          e.target.style.transform = "translateY(0)";
-          observer.unobserve(e.target);
-        }
-      });
-    }, { threshold: 0.15 });
-
-    els.forEach(el => observer.observe(el));
-  },
-
-  buttons() {
-    document.querySelectorAll("button, a").forEach(btn => {
-      btn.classList.add("flowui-btn");
-
-      btn.onmouseenter = () => btn.style.transform = "scale(1.05)";
-      btn.onmouseleave = () => btn.style.transform = "scale(1)";
-      btn.onmousedown = () => btn.style.transform = "scale(0.95)";
-      btn.onmouseup   = () => btn.style.transform = "scale(1.05)";
-    });
-  },
-
-  smoothScroll() {
-    document.documentElement.style.scrollBehavior = "smooth";
+(function () {
+  if (typeof anime === "undefined") {
+    console.error("FlowUI error: anime.js is not loaded");
+    return;
   }
-};
 
-window.FlowUI = FlowUI;
+  const FlowUI = {
+    init(options = {}) {
+      const settings = {
+        reveal: options.reveal !== false,
+        buttons: options.buttons !== false,
+        smoothScroll: options.smoothScroll === true
+      };
+
+      if (settings.reveal) this.revealText();
+      if (settings.buttons) this.animateButtons();
+      if (settings.smoothScroll) this.enableSmoothScroll();
+    },
+
+    revealText() {
+      const elements = document.querySelectorAll("h1, h2, h3, p, section, div");
+
+      elements.forEach(el => {
+        el.style.opacity = "0";
+        el.style.transform = "translateY(40px)";
+
+        anime({
+          targets: el,
+          opacity: [0, 1],
+          translateY: [40, 0],
+          duration: 900,
+          easing: "easeOutExpo",
+          delay: 150
+        });
+      });
+    },
+
+    animateButtons() {
+      document.querySelectorAll("button, a").forEach(el => {
+        el.addEventListener("mouseenter", () => {
+          anime({
+            targets: el,
+            scale: 1.08,
+            duration: 200,
+            easing: "easeOutQuad"
+          });
+        });
+
+        el.addEventListener("mouseleave", () => {
+          anime({
+            targets: el,
+            scale: 1,
+            duration: 200,
+            easing: "easeOutQuad"
+          });
+        });
+
+        el.addEventListener("mousedown", () => {
+          anime({
+            targets: el,
+            scale: 0.95,
+            duration: 100,
+            easing: "easeOutQuad"
+          });
+        });
+
+        el.addEventListener("mouseup", () => {
+          anime({
+            targets: el,
+            scale: 1.08,
+            duration: 100,
+            easing: "easeOutQuad"
+          });
+        });
+      });
+    },
+
+    enableSmoothScroll() {
+      document.documentElement.style.scrollBehavior = "smooth";
+    }
+  };
+
+  window.FlowUI = FlowUI;
+})();
